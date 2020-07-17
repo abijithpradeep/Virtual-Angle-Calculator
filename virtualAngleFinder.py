@@ -28,7 +28,7 @@ def record_mouse_coordinates(event, x, y, flags, param):
         param[0].append(point)
         cv2.circle(image, point, 5, (0, 0, 255), cv2.FILLED)
     #Removing the previous point coordinate
-    elif event == cv2.EVENT_RBUTTONDOWN:   
+    elif event == cv2.EVENT_RBUTTONDOWN and param[0]:   
         param[0].pop()
         image = cv2.imread(param[1])
         for p in param[0]:
