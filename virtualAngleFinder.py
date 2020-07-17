@@ -1,8 +1,3 @@
-# Program finds the angle within any given image. 
-# Click on 3 points to find the angle between them. The first point is considered as the origin.
-# Use mouse left button to register a point and double click mouse right button to 
-# remove the last point. Press 'r' to remove all the points.
-
 import argparse
 import cv2
 import math
