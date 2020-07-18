@@ -1,4 +1,4 @@
-# Virtual-Angle-Finder
+# Virtual-Angle-Calculator
 
 The program helps to easily find the angle within any given image. 
 Click on 3 points to find the angle between them. The first point is considered as the origin.
