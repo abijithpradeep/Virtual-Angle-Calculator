@@ -17,4 +17,4 @@ pip install argparse
 ## Usage
 
 ```python
-python virtualAngleFinder.py --path image_path
+python virtualAngleCalculator.py --path image_path
