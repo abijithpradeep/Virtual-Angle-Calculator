@@ -1,9 +1,14 @@
 # Virtual-Angle-Calculator
 
 The program helps to easily find the angle within any given image. 
-Click on 3 points to find the angle between them. The first point is considered as the origin.
-Use mouse left button to register each point and double click mouse right button to remove the previous point.
-You can press 'r' to remove all the points and 'q' to quit the program.
+
+![](demo1.gif)
+
+![](demo2.gif)
+
+Click any 3 points to find the angle between them. The first point is considered as the origin.
+Double click mouse right button to remove the previous point.
+Input 'r' to remove all the points or 'q' to quit the program.
 
 ## Requirements
 
