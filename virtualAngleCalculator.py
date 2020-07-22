@@ -2,7 +2,76 @@ import argparse
 import cv2
 import math
 
-#Parsing the argument to collect the image path
+
+class VirtualAngleCalculator:
+    def __init__(self, image_path):
+        self.image_path = image_path
+        self.coordinates = list()
+        self.point = tuple()
+        self.angle = 0
+        cv2.namedWindow('Image')
+
+    #Reading the image
+    def read_image(self):
+        self.image = cv2.imread(self.image_path)
+        return self.image
+
+    #Displaying the image
+    def display_image(self):
+        cv2.imshow('Image', self.image)
+        return
+
+    #Checking the mouse event and then storing or removing the coordinates based on the event
+    def record_mouse_coordinates(self, event, x, y, flags, param):
+        if event == cv2.EVENT_LBUTTONDOWN:
+            self.point = (x, y)
+            self.coordinates.append(self.point)
+            cv2.circle(self.image, self.point, 5, (0, 0, 255), cv2.FILLED)
+
+        elif event == cv2.EVENT_RBUTTONDOWN and self.coordinates:   
+            self.coordinates.pop()
+            self.image = cv2.imread(self.image_path)
+            for coordinate in self.coordinates:
+                cv2.circle(self.image, coordinate, 5, (0, 0, 255), cv2.FILLED)      
+        return 
+
+    #Calculating the distance between two points using Euclidean formula
+    def euclidean_distance(self, p1, p2):
+        return math.sqrt(sum([(x - y) ** 2 for x, y in zip(p1, p2)]))
+
+    #Finding the angle using the Law of Cosines
+    def find_angle(self):
+        origin, point1, point2 = self.coordinates[-3:]
+        a = self.euclidean_distance(origin, point1)
+        b = self.euclidean_distance(origin, point2)
+        c = self.euclidean_distance(point1, point2)
+        try:
+            self.angle = round(math.degrees(math.acos(((a**2) +
+                                             (b**2) - (c**2)) / (2*a*b))))
+        except:
+            self.angle = 0
+        self.image = cv2.line(self.image, origin, point1, (0, 0, 255), 2) 
+        self.image = cv2.line(self.image, origin, point2, (0, 0, 255), 2)
+        cv2.putText(self.image, str(self.angle), (origin[0]+20, origin[1]-20), 
+                                cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2, cv2.LINE_AA)
+
+
+    def calculate(self):
+        self.read_image()
+        while(True):
+            self.display_image()
+            cv2.setMouseCallback('Image', self.record_mouse_coordinates)
+            if self.coordinates and len(self.coordinates) % 3 == 0 :
+                self.find_angle()
+            #Resetting the image
+            if cv2.waitKey(1) == ord('r') or cv2.waitKey(1) == ord('R'):
+                self.coordinates = []
+                self.image = cv2.imread(self.image_path)
+            #Removing the previous point
+            elif cv2.waitKey(1) == ord('q') or cv2.waitKey(1) == ord('Q'):
+                break
+
+#Parsing the argument passed while executinig the program file to get the image path
 def argument_parser():
     parser = argparse.ArgumentParser(description = "Find the Angle within any given image")
     parser.add_argument('--path',
@@ -13,61 +82,7 @@ def argument_parser():
     args = parser.parse_args()
     return args.path
 
-#Saving or removing the point coordinates based on the event.
-def record_mouse_coordinates(event, x, y, flags, param):
-    global image
-    #Saving the point coordinate
-    if event == cv2.EVENT_LBUTTONDOWN:
-        point = (x, y)
-        param[0].append(point)
-        cv2.circle(image, point, 5, (0, 0, 255), cv2.FILLED)
-    #Removing the previous point coordinate
-    elif event == cv2.EVENT_RBUTTONDOWN and param[0]:   
-        param[0].pop()
-        image = cv2.imread(param[1])
-        for p in param[0]:
-            cv2.circle(image, p, 5, (0, 0, 255), cv2.FILLED)      
-    return 
-
-#Calculates distance between two points
-def euclidean_distance(p1, p2):
-    return math.sqrt(sum([(x - y) ** 2 for x, y in zip(p1, p2)]))
-
-#Calculating angle based on Law of Cosines
-def calculate_angle(points):
-    global image
-    origin, point1, point2 = points
-    a = euclidean_distance(origin, point1)
-    b = euclidean_distance(origin, point2)
-    c = euclidean_distance(point1, point2)
-    try:
-        angle = round(math.degrees(math.acos(((a**2) + (b**2) - (c**2)) / (2*a*b))))
-    except:
-        angle = 0
-    #Drawing lines
-    image = cv2.line(image, origin, point1, (0, 0, 255), 2) 
-    image = cv2.line(image, origin, point2, (0, 0, 255), 2)
-    #Displaying the calculated angle
-    cv2.putText(image, str(angle), (origin[0]+20, origin[1]-20), 
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2, cv2.LINE_AA)
-
-def main():
-    global image
-    image_path = argument_parser()
-    image = cv2.imread(image_path)
-    coordinates = list()
-    cv2.namedWindow('Image')
-    while(True):
-        cv2.imshow('Image', image)
-        cv2.setMouseCallback('Image', record_mouse_coordinates, param = [coordinates, image_path])
-        if cv2.waitKey(1) == ord('r'):
-            coordinates = []
-            image = cv2.imread(image_path)
-        elif cv2.waitKey(1) == ord('q'):
-            break
-        if coordinates and len(coordinates) % 3 == 0 :
-            angle = calculate_angle(coordinates[-3:])
-            
 
 if __name__ == "__main__":
-    main()
+    imagePath = argument_parser()
+    VirtualAngleCalculator(imagePath).calculate()
